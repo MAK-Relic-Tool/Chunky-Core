@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from io import BytesIO
 from typing import TypeVar, BinaryIO, Optional, Literal, List, Generic, Type
 
-from relic.chunky import protocols as p
-from relic.chunky._core import ChunkType, Version, ChunkFourCCPath, ChunkFourCC
-from relic.chunky.protocols import TCMetadata, ChunkWalk
+from relic.chunky.core import protocols as p
+from relic.chunky.core._core import ChunkType, Version, ChunkFourCCPath, ChunkFourCC
+from relic.chunky.core.protocols import TCMetadata, ChunkWalk
 
 TCFolder = TypeVar("TCFolder", bound=p.FolderChunk)
 TCData = TypeVar("TCData", bound=p.DataChunk)
@@ -15,7 +15,9 @@ TChunky = TypeVar("TChunky", bound=p.Chunky)
 TChunkyMetadata = TypeVar("TChunkyMetadata")
 
 
-def _resolve_parent_id(cc: ChunkFourCC, parent: Optional[p.ChunkNode]) -> ChunkFourCCPath:
+def _resolve_parent_id(
+    cc: ChunkFourCC, parent: Optional[p.ChunkNode]
+) -> ChunkFourCCPath:
     if parent is not None and isinstance(parent, p.IdentifiableChunk):
         return parent.fourCC_path / cc
     else:
@@ -29,7 +31,14 @@ class FolderChunk(Generic[TCMetadata], p.FolderChunk[TCMetadata]):
             for _ in folder.walk():
                 yield _
 
-    def __init__(self, chunk_id: ChunkFourCC, metadata: TCMetadata, folders: Optional[List[TCFolder]] = None, data_chunks: Optional[List[TCData]] = None, parent: Optional[FolderChunk] = None):
+    def __init__(
+        self,
+        chunk_id: ChunkFourCC,
+        metadata: TCMetadata,
+        folders: Optional[List[TCFolder]] = None,
+        data_chunks: Optional[List[TCData]] = None,
+        parent: Optional[FolderChunk] = None,
+    ):
         self._fourcc = chunk_id
         self.metadata = metadata
         self.folders = folders if folders is not None else []
@@ -127,7 +136,10 @@ class RawDataChunk(Generic[TCMetadata], p.DataChunk[TCMetadata]):
 
 
 @dataclass
-class Chunky(Generic[TChunkyMetadata, TCFolder, TCData], p.Chunky[TChunkyMetadata, TCFolder, TCData]):
+class Chunky(
+    Generic[TChunkyMetadata, TCFolder, TCData],
+    p.Chunky[TChunkyMetadata, TCFolder, TCData],
+):
     metadata: TChunkyMetadata
     folders: List[TCFolder]
     data_chunks: List[TCData]
@@ -140,7 +152,10 @@ class Chunky(Generic[TChunkyMetadata, TCFolder, TCData], p.Chunky[TChunkyMetadat
 
 
 @dataclass
-class API(Generic[TChunky, TCFolder, TCData, TChunkyMetadata, TCMetadata], p.API[TChunky, TCFolder, TCData, TChunkyMetadata, TCMetadata]):
+class API(
+    Generic[TChunky, TCFolder, TCData, TChunkyMetadata, TCMetadata],
+    p.API[TChunky, TCFolder, TCData, TChunkyMetadata, TCMetadata],
+):
     version: Version
     Chunky: Type[TChunky]
     FolderChunk: Type[TCFolder]

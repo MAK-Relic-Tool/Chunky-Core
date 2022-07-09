@@ -4,9 +4,9 @@ from typing import BinaryIO
 
 from serialization_tools.structx import Struct
 
-from relic.chunky._core import ChunkType, ChunkFourCC
-from relic.chunky.errors import ChunkTypeError
-from relic.chunky.protocols import StreamSerializer
+from relic.chunky.core._core import ChunkType, ChunkFourCC
+from relic.chunky.core.errors import ChunkTypeError
+from relic.chunky.core.protocols import StreamSerializer
 
 
 class ChunkTypeSerializer(StreamSerializer[ChunkType]):
@@ -15,7 +15,7 @@ class ChunkTypeSerializer(StreamSerializer[ChunkType]):
 
     def unpack(self, stream: BinaryIO) -> ChunkType:
         buffer: bytes
-        buffer, = self.layout.unpack_stream(stream)
+        (buffer,) = self.layout.unpack_stream(stream)
         try:
             value: str = buffer.decode("ascii")
         except UnicodeDecodeError:
@@ -36,7 +36,7 @@ class ChunkFourCCSerializer(StreamSerializer[ChunkFourCC]):
 
     def unpack(self, stream: BinaryIO) -> ChunkFourCC:
         buffer: bytes
-        buffer, = self.layout.unpack_stream(stream)
+        (buffer,) = self.layout.unpack_stream(stream)
         value: str = buffer.decode("ascii")
         return ChunkFourCC(value)
 

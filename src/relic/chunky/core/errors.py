@@ -1,6 +1,6 @@
 from typing import Union
 
-from relic.chunky._core import ChunkType, Version
+from relic.chunky.core._core import ChunkType, Version
 from relic.core.errors import MismatchError
 
 

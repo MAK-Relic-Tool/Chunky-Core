@@ -54,6 +54,7 @@ class Version:
     """
     A `Chunky Version`
     """
+
     """ The Major Version """
     major: int
     """ The Minor Version, this is typically `1` """
@@ -87,4 +88,6 @@ class Version:
         return layout.pack_stream(stream, *args)
 
 
-MagicWord = MagicWordIO(Struct("< 16s"), b"Relic Chunky\r\n\x1a\0")  # We include \r\n\x1a\0 because it signals a properly formatted file
+MagicWord = MagicWordIO(
+    Struct("< 16s"), b"Relic Chunky\r\n\x1a\0"
+)  # We include \r\n\x1a\0 because it signals a properly formatted file

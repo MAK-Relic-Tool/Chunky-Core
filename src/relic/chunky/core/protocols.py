@@ -1,8 +1,19 @@
 from __future__ import annotations
 
-from typing import runtime_checkable, TypeVar, Protocol, BinaryIO, Sequence, Optional, Literal, Type, Iterable, Tuple
+from typing import (
+    runtime_checkable,
+    TypeVar,
+    Protocol,
+    BinaryIO,
+    Sequence,
+    Optional,
+    Literal,
+    Type,
+    Iterable,
+    Tuple,
+)
 
-from relic.chunky._core import ChunkType, Version, ChunkFourCCPath, ChunkFourCC
+from relic.chunky.core._core import ChunkType, Version, ChunkFourCCPath, ChunkFourCC
 
 TCFolder = TypeVar("TCFolder")
 TCData = TypeVar("TCData")
@@ -66,7 +77,9 @@ class ChunkWalkable(Protocol[TCFolder_co, TCData_co]):
         raise NotImplementedError
 
 
-class FolderChunk(Chunk[TCMetadata], ChunkWalkable, ChunkContainer, Protocol[TCMetadata]):
+class FolderChunk(
+    Chunk[TCMetadata], ChunkWalkable, ChunkContainer, Protocol[TCMetadata]
+):
     @property
     def type(self) -> Literal[ChunkType.Folder]:  # type: ignore
         raise NotImplementedError
@@ -79,7 +92,11 @@ class DataChunk(Chunk[TCMetadata], Protocol[TCMetadata]):
 
 
 @runtime_checkable
-class Chunky(ChunkContainer[TCFolder, TCData], ChunkWalkable, Protocol[TChunkyMetadata, TCFolder, TCData]):
+class Chunky(
+    ChunkContainer[TCFolder, TCData],
+    ChunkWalkable,
+    Protocol[TChunkyMetadata, TCFolder, TCData],
+):
     metadata: TChunkyMetadata
 
 
