@@ -1,6 +1,6 @@
-from typing import Union
+from typing import Union, List, Optional, Generic, TypeVar
 
-from relic.chunky.core._core import ChunkType, Version
+from relic.chunky.core._core import ChunkType, Version, Platform
 from relic.core.errors import MismatchError
 
 
@@ -34,6 +34,40 @@ class ChunkNameError(ChunkError):
             return msg + f"; got {repr(self.name)}!"
 
 
+T = TypeVar("T")
+
+
+class NotSupportedError(Exception, Generic[T]):
+    def __init__(self, received: T, allowed: List[T]):
+        super().__init__()
+        self.received = received
+        self.allowed = allowed
+
+    def __str__(self) -> str:
+        return f"`{self.received}` is not supported. Supported values: `{self.allowed}`."
+
+
 class VersionMismatchError(MismatchError):
     def __init__(self, received: Version = None, expected: Version = None):
         super().__init__("Version", received, expected)
+
+
+class VersionNotSupported(NotSupportedError):
+    def __init__(self, received: Version, allowed: List[Version]):
+        super().__init__(received, allowed)
+
+
+class PlatformMismatchError(MismatchError):
+    def __init__(self, received: Platform = None, expected: Platform = None):
+        super().__init__("Platform", received, expected)
+
+
+class PlatformNotSupported(NotSupportedError):
+    def __init__(self, received: Platform, allowed: List[Platform] = None):
+        super().__init__(received, allowed)
+
+
+class UnknownPlatformError(NotSupportedError):
+    def __init__(self, received: int):
+        allowed: List[int] = [p.value for p in Platform]
+        super().__init__(received, allowed)

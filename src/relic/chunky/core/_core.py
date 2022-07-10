@@ -22,6 +22,11 @@ class ChunkFourCC:
     def __str__(self):
         return self.code
 
+    def __repr__(self):
+        attrs = ["code"]
+        attr_strs = [f"{attr}={getattr(self,attr)}" for attr in attrs]
+        return f"{self.__class__.__name__}({','.join(attr_strs)})"
+
     def __eq__(self, other):
         return self.code == other.code
 
@@ -45,8 +50,14 @@ class ChunkFourCCPath:
         part_str = [str(cc) for cc in self.parts]
         return ".".join(part_str)
 
+    def __repr__(self):
+        attrs = ["parts"]
+        attr_strs = [f"{attr}={getattr(self, attr)}" for attr in attrs]
+        return f"{self.__class__.__name__}({','.join(attr_strs)})"
+
     def __eq__(self, other):
         return self.parts == other.parts
+
 
 
 @dataclass
@@ -55,26 +66,22 @@ class Version:
     A `Chunky Version`
     """
 
-    """ The Major Version """
-    major: int
-    """ The Minor Version, this is typically `1` """
-    minor: int = 1
+    """ The Version # """
+    value: int
 
-    LAYOUT: ClassVar[Struct] = Struct("<2I")
+    LAYOUT: ClassVar[Struct] = Struct("<I")
 
     def __str__(self) -> str:
-        return f"Version {self.major}.{self.minor}"
+        return f"Version {self.value}"
 
     def __eq__(self, other):
         if isinstance(other, Version):
-            return self.major == other.major and self.minor == other.minor
+            return self.value == other.value
         else:
             return super().__eq__(other)
 
     def __hash__(self):
-        # Realistically; Version will always be <256
-        # But we could manually set it to something much bigger by accident; and that may cause collisions
-        return self.major << (self.LAYOUT.size // 2) + self.minor
+        return self.value
 
     @classmethod
     def unpack(cls, stream: BinaryIO):
@@ -84,10 +91,15 @@ class Version:
 
     def pack(self, stream: BinaryIO):
         layout: Struct = self.LAYOUT
-        args = (self.major, self.minor)
+        args = (self.value, self.minor)
         return layout.pack_stream(stream, *args)
 
 
-MagicWord = MagicWordIO(
-    Struct("< 16s"), b"Relic Chunky\r\n\x1a\0"
-)  # We include \r\n\x1a\0 because it signals a properly formatted file
+class Platform(int, Enum):
+    _ignore_=["LAYOUT"]
+    LAYOUT: ClassVar[Struct] = Struct("<I")
+
+    PC = 1  # maybe mac uses a separate format code?
+
+# We include \r\n\x1a\0 because it signals a properly formatted file
+MagicWord = MagicWordIO(Struct("< 16s"), b"Relic Chunky\r\n\x1a\0")
