@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import os
+import typing
 from os.path import expanduser
 from typing import (
     Optional,
@@ -19,12 +20,13 @@ from typing import (
 
 import fs.opener.errors
 import pkg_resources
-from fs import ResourceType
+from fs import ResourceType, errors
 from fs.base import FS
 from fs.info import Info
 from fs.memoryfs import MemoryFS, _DirEntry, _MemoryFile
 from fs.opener import Opener, registry as fs_registry
 from fs.opener.parse import ParseResult
+from fs.path import split
 
 from relic.chunky.core.definitions import Version, MagicWord, _validate_magic_word
 from relic.chunky.core.errors import VersionNotSupportedError
@@ -253,6 +255,32 @@ class ChunkyFS(MemoryFS):
             self, resource_type: ResourceType, name: str
     ) -> _ChunkyDirEntry:
         return _ChunkyDirEntry(resource_type, name)
+
+    def setinfo(self, path, info):
+        # type: (Text, RawInfo) -> None
+        _path = self.validatepath(path)
+        with self._lock:
+            dir_path, file_name = split(_path)
+            parent_dir_entry = self._get_dir_entry(dir_path)
+
+            if parent_dir_entry is None or file_name not in parent_dir_entry:
+                raise errors.ResourceNotFound(path)
+
+            resource_entry = typing.cast(
+                _ChunkyDirEntry, parent_dir_entry.get_entry(file_name)
+            )
+
+            if "details" in info:
+                details = info["details"]
+                if "accessed" in details:
+                    resource_entry.accessed_time = details["accessed"]  # type: ignore
+                if "modified" in details:
+                    resource_entry.modified_time = details["modified"]  # type: ignore
+            
+            if "essence" in info:
+                essence = dict(info["essence"])
+                resource_entry.essence = essence.copy()
+
 
 
 __all__ = [
