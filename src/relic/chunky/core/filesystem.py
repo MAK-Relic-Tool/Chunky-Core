@@ -221,7 +221,7 @@ class _ChunkyDirEntry(_DirEntry):
         info = super().to_info(namespaces)
         if (
                 namespaces is not None
-                and not self.is_dir
+                # and not self.is_dir
                 and ESSENCE_NAMESPACE in namespaces
         ):
             info_dict = dict(info.raw)
