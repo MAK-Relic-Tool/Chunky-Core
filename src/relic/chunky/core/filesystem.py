@@ -256,8 +256,7 @@ class ChunkyFS(MemoryFS):
     ) -> _ChunkyDirEntry:
         return _ChunkyDirEntry(resource_type, name)
 
-    def setinfo(self, path, info):
-        # type: (Text, RawInfo) -> None
+    def setinfo(self, path:str, info:Mapping[str,Mapping[str,object]]) -> None:
         _path = self.validatepath(path)
         with self._lock:
             dir_path, file_name = split(_path)
@@ -273,10 +272,10 @@ class ChunkyFS(MemoryFS):
             if "details" in info:
                 details = info["details"]
                 if "accessed" in details:
-                    resource_entry.accessed_time = details["accessed"]  # type: ignore
+                    resource_entry.accessed_time = details["accessed"] # type: ignore
                 if "modified" in details:
-                    resource_entry.modified_time = details["modified"]  # type: ignore
-            
+                    resource_entry.modified_time = details["modified"] # type: ignore
+
             if "essence" in info:
                 essence = dict(info["essence"])
                 resource_entry.essence = essence.copy()
