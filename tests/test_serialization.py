@@ -8,7 +8,7 @@ from relic.chunky.core.definitions import Version, ChunkType, ChunkFourCC
 from relic.chunky.core.filesystem import ChunkyFS
 from relic.chunky.core.protocols import StreamSerializer, T
 from relic.chunky.core.serialization import (
-    MinimalChunkyHeader,
+    MinimalChunkHeader,
     ChunkyFSSerializer,
     ChunkCollectionHandler,
     chunk_type_serializer,
@@ -17,7 +17,7 @@ from relic.chunky.core.serialization import (
 
 
 @dataclass
-class ChunkTestHeader(MinimalChunkyHeader):
+class ChunkTestHeader(MinimalChunkHeader):
     name: str
     cc: ChunkFourCC
     type: ChunkType

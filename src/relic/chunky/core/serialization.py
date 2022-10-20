@@ -73,14 +73,14 @@ chunk_type_serializer = ChunkTypeSerializer(Struct("<4s"))
 chunk_cc_serializer = ChunkFourCCSerializer(Struct("<4s"))
 
 
-class MinimalChunkyHeader(Protocol):
+class MinimalChunkHeader(Protocol):
     name: str
     type: ChunkType
     cc: ChunkFourCC
     size: int
 
 
-TChunkHeader = TypeVar("TChunkHeader", bound=MinimalChunkyHeader)
+TChunkHeader = TypeVar("TChunkHeader", bound=MinimalChunkHeader)
 TChunkyHeader = TypeVar("TChunkyHeader")
 
 _ESSENCE = "essence"
@@ -298,7 +298,7 @@ __all__ = [
     "chunk_type_serializer",
     "ChunkTypeSerializer",
     "ChunkFourCCSerializer",
-    "MinimalChunkyHeader",
+    "MinimalChunkHeader",
     "TChunkHeader",
     "TChunkyHeader",
     "default_slugify_parts",

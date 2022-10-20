@@ -5,7 +5,7 @@ import fs
 from fs.test import FSTestCases
 
 from relic.chunky.core.filesystem import ChunkyFS
-from relic.chunky.core.serialization import ChunkyFSSerializer, MinimalChunkyHeader
+from relic.chunky.core.serialization import ChunkyFSSerializer, MinimalChunkHeader
 
 
 class TestChunkyFS(FSTestCases, unittest.TestCase):
