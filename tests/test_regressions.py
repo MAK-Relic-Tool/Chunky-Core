@@ -50,7 +50,7 @@ serialization__all__ = [
     "chunk_type_serializer",
     "ChunkTypeSerializer",
     "ChunkFourCCSerializer",
-    "MinimalChunkyHeader",
+    "MinimalChunkHeader",
     "TChunkHeader",
     "TChunkyHeader",
     "default_slugify_parts",

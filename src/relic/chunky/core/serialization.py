@@ -115,9 +115,9 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
         return info.raw[_ESSENCE]  # type: ignore
 
     @staticmethod
-    def _set_essence(fs: FS, path: str, essence: Dict[str, object]):
+    def _set_essence(fs: FS, path: str, essence: Dict[str, object]) -> None:
         mapped = {_ESSENCE: essence}
-        return fs.setinfo(path, mapped)
+        fs.setinfo(path, mapped)
 
     @staticmethod
     def _duplicate_n_generator(starting_n: int = 2) -> Iterable[Optional[int]]:
@@ -280,7 +280,7 @@ class ChunkyFSSerializer(ChunkyFSHandler, Generic[TChunkyHeader, TChunkHeader]):
         return fs
 
     def write(self, stream: BinaryIO, fs: ChunkyFS) -> int:
-        written = MagicWord.write_magic_word(stream)
+        written:int = MagicWord.write_magic_word(stream)
         # TODO, some warning for chunky meta not matching serializer version?
         #   It will definitely fail if all chunks dont get updated metadata for missing fields, so maybe irrelevant?
         written += self.version.pack(stream)
