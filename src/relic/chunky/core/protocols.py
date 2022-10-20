@@ -13,9 +13,14 @@ T = TypeVar("T")
 @runtime_checkable
 class StreamSerializer(Protocol[T]):
     def unpack(self, stream: BinaryIO) -> T:
-        raise NotImplementedError
+        raise NotImplementedError(
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}.unpack"
+        )
 
     def pack(self, stream: BinaryIO, packable: T) -> int:
-        raise NotImplementedError
+        raise NotImplementedError(
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}.pack"
+        )
 
-__all__ =  ["T", "StreamSerializer"]
+
+__all__ = ["T", "StreamSerializer"]

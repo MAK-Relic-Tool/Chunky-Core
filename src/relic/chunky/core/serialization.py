@@ -1,14 +1,30 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import BinaryIO, Generic, Dict, TypeVar, Callable, Mapping, Optional, Protocol, Iterable
+from typing import (
+    BinaryIO,
+    Generic,
+    Dict,
+    TypeVar,
+    Callable,
+    Mapping,
+    Optional,
+    Protocol,
+    Iterable,
+)
 
 from fs.base import FS
 from fs.errors import FileExists, DirectoryExists
 from relic.core.errors import MismatchError
 from serialization_tools.structx import Struct
 
-from relic.chunky.core.definitions import ChunkType, ChunkFourCC, Version, MagicWord
+from relic.chunky.core.definitions import (
+    ChunkType,
+    ChunkFourCC,
+    Version,
+    MagicWord,
+    _validate_magic_word,
+)
 from relic.chunky.core.errors import ChunkTypeError, VersionMismatchError
 from relic.chunky.core.filesystem import ChunkyFSHandler, ChunkyFS
 from relic.chunky.core.protocols import StreamSerializer, T
@@ -32,7 +48,8 @@ class ChunkTypeSerializer(StreamSerializer[ChunkType]):
                 raise ChunkTypeError(value) from exc
 
     def pack(self, stream: BinaryIO, packable: ChunkType) -> int:
-        written: int = self.layout.pack_stream(stream, packable.value)
+        encoded: bytes = packable.value.encode("ascii")
+        written: int = self.layout.pack_stream(stream, encoded)
         return written
 
 
@@ -47,7 +64,8 @@ class ChunkFourCCSerializer(StreamSerializer[ChunkFourCC]):
         return ChunkFourCC(value)
 
     def pack(self, stream: BinaryIO, packable: ChunkFourCC) -> int:
-        written: int = self.layout.pack_stream(stream, packable.code)
+        encoded = packable.code.encode("ascii")
+        written: int = self.layout.pack_stream(stream, encoded)
         return written
 
 
@@ -55,17 +73,33 @@ chunk_type_serializer = ChunkTypeSerializer(Struct("<4s"))
 chunk_cc_serializer = ChunkFourCCSerializer(Struct("<4s"))
 
 
-class GenericChunkyHeader(Protocol):
+class MinimalChunkyHeader(Protocol):
     name: str
     type: ChunkType
-    cc: str
+    cc: ChunkFourCC
     size: int
 
 
-TChunkHeader = TypeVar("TChunkHeader", bound=GenericChunkyHeader)
+TChunkHeader = TypeVar("TChunkHeader", bound=MinimalChunkyHeader)
 TChunkyHeader = TypeVar("TChunkyHeader")
 
 _ESSENCE = "essence"
+
+
+def default_slugify_parts(name: str, ext: str, n: Optional[int] = None) -> str:
+    # Any chunk which references the EssenceFS typically names themselves the full path to the references asset
+    #   unfortunately; that's a BAD name in the ChunkyFS; so we need to convert it to a safe ChunkyFS name
+    safe_name = name.replace("/", "-").replace("\\", "-")
+
+    if safe_name[-1] == ".":
+        safe_name = safe_name[:-1]
+    if ext[0] == ".":
+        ext = ext[1:]
+
+    if n is None:
+        return f"{safe_name}.{ext}"
+    else:
+        return f"{safe_name} {n}.{ext}"
 
 
 @dataclass
@@ -73,7 +107,7 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
     header_serializer: StreamSerializer[TChunkHeader]
     header2meta: Callable[[TChunkHeader], Dict[str, object]]
     meta2header: Callable[[Dict[str, object]], TChunkHeader]
-    slugify: Callable[[str, str, Optional[int]], str]
+    slugify: Callable[[str, str, Optional[int]], str] = default_slugify_parts
 
     @staticmethod
     def _get_essence(fs: FS, path: str) -> Dict[str, object]:
@@ -84,22 +118,6 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
     def _set_essence(fs: FS, path: str, essence: Dict[str, object]):
         mapped = {_ESSENCE: essence}
         return fs.setinfo(path, mapped)
-
-    @staticmethod
-    def _default_slugify_parts(name: str, ext: str, n: Optional[int] = None) -> str:
-        # Any chunk which references the EssenceFS typically names themselves the full path to the references asset
-        #   unfortunately; that's a BAD name in the ChunkyFS; so we need to convert it to a safe ChunkyFS name
-        safe_name = name.replace("/", "-").replace("\\", "-")
-
-        if safe_name[-1] == ".":
-            safe_name = safe_name[:-1]
-        if ext[0] == ".":
-            ext = ext[1:]
-
-        if n is None:
-            return f"{safe_name}.{ext}"
-        else:
-            return f"{safe_name} {n}.{ext}"
 
     @staticmethod
     def _duplicate_n_generator(starting_n: int = 2) -> Iterable[Optional[int]]:
@@ -128,7 +146,7 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
         metadata = self.header2meta(header)
         data = stream.read(header.size)
         for n in self._duplicate_n_generator(2):
-            path = self.slugify(header.name, header.cc, n)
+            path = self.slugify(header.name, header.cc.code, n)
             try:
                 with fs.open(path, "xwb") as handle:
                     handle.write(data)
@@ -165,7 +183,7 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
         metadata = self.header2meta(header)
         start, size = stream.tell(), header.size
         for n in self._duplicate_n_generator(2):
-            path = self.slugify(header.name, header.cc, n)
+            path = self.slugify(header.name, header.cc.code, n)
             try:
                 dir_fs = fs.makedir(path)
             except DirectoryExists as exc:
@@ -191,7 +209,7 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
             return self._pack_data(parent_fs, path, stream)
 
     def unpack_chunk_collection(
-            self, fs: FS, stream: BinaryIO, start: int, end: int
+        self, fs: FS, stream: BinaryIO, start: int, end: int
     ) -> None:
         stream.seek(start)
         # folders: List[FolderChunk] = []
@@ -235,13 +253,17 @@ class ChunkyFSSerializer(ChunkyFSHandler, Generic[TChunkyHeader, TChunkHeader]):
     meta2header: Callable[[Dict[str, object]], TChunkyHeader]
 
     def read(self, stream: BinaryIO) -> ChunkyFS:
-        MagicWord.check_magic_word(stream)
+        _validate_magic_word(MagicWord, stream, True)
+
         version = Version.unpack(stream)
         if version != self.version:
             raise VersionMismatchError(version, self.version)
         header = self.header_serializer.unpack(stream)
         meta = self.header2meta(header)
-        meta["version"] = {"major": version.major, "minor": version.minor}  # manually inject version into metadata
+        meta["version"] = {
+            "major": version.major,
+            "minor": version.minor,
+        }  # manually inject version into metadata
 
         fs = ChunkyFS()
         fs.setmeta(meta, _ESSENCE)
@@ -265,7 +287,7 @@ class ChunkyFSSerializer(ChunkyFSHandler, Generic[TChunkyHeader, TChunkHeader]):
         # Write the header
         meta = fs.getmeta(_ESSENCE)
         header = self.meta2header(meta)  # type: ignore
-        written = self.header_serializer.pack(header, stream)
+        written = self.header_serializer.pack(stream, header)
         # Write chunks from the FS into the stream
         written += self.chunk_serializer.pack_chunk_collection(fs, stream)
         return written
@@ -275,5 +297,11 @@ __all__ = [
     "chunk_cc_serializer",
     "chunk_type_serializer",
     "ChunkTypeSerializer",
-    "ChunkFourCCSerializer"
+    "ChunkFourCCSerializer",
+    "MinimalChunkyHeader",
+    "TChunkHeader",
+    "TChunkyHeader",
+    "default_slugify_parts",
+    "ChunkCollectionHandler",
+    "ChunkyFSSerializer",
 ]

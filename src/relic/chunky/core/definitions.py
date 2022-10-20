@@ -23,8 +23,8 @@ class ChunkFourCC:
     def __str__(self) -> str:
         return self.code
 
-    def __eq__(self, other:Any) -> bool:
-        eq:bool = self.code == other.code
+    def __eq__(self, other: Any) -> bool:
+        eq: bool = self.code == other.code
         return eq
 
 
@@ -44,7 +44,7 @@ class Version:
     def __str__(self) -> str:
         return f"Version {self.major}.{self.minor}"
 
-    def __eq__(self, other:Any) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, Version):
             return self.major == other.major and self.minor == other.minor
         return super().__eq__(other)
@@ -52,8 +52,8 @@ class Version:
     def __hash__(self) -> int:
         # Realistically; Version will always be <256
         # But we could manually set it to something much bigger by accident; and that may cause collisions
-        TERM_SIZE_IN_BYTES:int = (self.LAYOUT.size // 2)
-        return self.major << (TERM_SIZE_IN_BYTES*8) + self.minor
+        TERM_SIZE_IN_BYTES: int = self.LAYOUT.size // 2
+        return self.major << (TERM_SIZE_IN_BYTES * 8) + self.minor
 
     @classmethod
     def unpack(cls, stream: BinaryIO) -> Version:
@@ -64,7 +64,7 @@ class Version:
     def pack(self, stream: BinaryIO) -> int:
         layout: Struct = self.LAYOUT
         args = (self.major, self.minor)
-        written:int = layout.pack_stream(stream, *args)
+        written: int = layout.pack_stream(stream, *args)
         return written
 
 
@@ -90,14 +90,9 @@ class _ChunkLazyInfo:
         self.stream.seek(self.jump_to)
         buffer = self.stream.read(self.size)
         if len(buffer) != self.size:
-            raise MismatchError("Buffer Read Size",len(buffer),self.size)
+            raise MismatchError("Buffer Read Size", len(buffer), self.size)
         self.stream.seek(jump_back)
         return buffer
 
 
-__all__ = [
-    "ChunkFourCC",
-    "Version",
-    "MagicWord",
-    "ChunkType"
-]
+__all__ = ["ChunkType", "ChunkFourCC", "MagicWord", "Version"]

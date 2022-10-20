@@ -137,28 +137,26 @@ class ChunkyFSFactory(EntrypointRegistry[Version, ChunkyFSHandler]):
         return handler
 
     def _get_handler_from_stream(
-            self, sga_stream: BinaryIO, version: Optional[Version] = None
+        self, sga_stream: BinaryIO, version: Optional[Version] = None
     ) -> ChunkyFSHandler:
         if version is None:
             version = self._read_magic_and_version(sga_stream)
         return self._get_handler(version)
 
     def _get_handler_from_fs(
-            self, sga_fs: ChunkyFS, version: Optional[Version] = None
+        self, sga_fs: ChunkyFS, version: Optional[Version] = None
     ) -> ChunkyFSHandler:
         if version is None:
             sga_version: Dict[str, int] = sga_fs.getmeta("essence").get("version")  # type: ignore
             version = Version(sga_version["major"], sga_version["minor"])
         return self._get_handler(version)
 
-    def read(
-            self, sga_stream: BinaryIO, version: Optional[Version] = None
-    ) -> ChunkyFS:
+    def read(self, sga_stream: BinaryIO, version: Optional[Version] = None) -> ChunkyFS:
         handler = self._get_handler_from_stream(sga_stream, version)
         return handler.read(sga_stream)
 
     def write(
-            self, sga_stream: BinaryIO, sga_fs: ChunkyFS, version: Optional[Version] = None
+        self, sga_stream: BinaryIO, sga_fs: ChunkyFS, version: Optional[Version] = None
     ) -> int:
         handler = self._get_handler_from_fs(sga_fs, version)
         return handler.write(sga_stream, sga_fs)
@@ -178,12 +176,12 @@ class ChunkyFSOpener(Opener):
     protocols = ["chunky"]
 
     def open_fs(
-            self,
-            fs_url: str,
-            parse_result: ParseResult,
-            writeable: bool,
-            create: bool,
-            cwd: str,
+        self,
+        fs_url: str,
+        parse_result: ParseResult,
+        writeable: bool,
+        create: bool,
+        cwd: str,
     ) -> FS:
         # All ChunkyFS should be writable; so we can ignore that
 
@@ -191,7 +189,9 @@ class ChunkyFSOpener(Opener):
         if fs_url == "chunky://":
             if create:
                 return ChunkyFS()
-            raise fs.opener.errors.OpenerError("No path was given and opener not marked for 'create'!"            )
+            raise fs.opener.errors.OpenerError(
+                "No path was given and opener not marked for 'create'!"
+            )
 
         _path = os.path.abspath(os.path.join(cwd, expanduser(parse_result.resource)))
         path = os.path.normpath(_path)
@@ -222,9 +222,9 @@ class _ChunkyDirEntry(_DirEntry):
         # type: (Optional[Collection[Text]]) -> Info
         info = super().to_info(namespaces)
         if (
-                namespaces is not None
-                # and not self.is_dir
-                and ESSENCE_NAMESPACE in namespaces
+            namespaces is not None
+            # and not self.is_dir
+            and ESSENCE_NAMESPACE in namespaces
         ):
             info_dict = dict(info.raw)
             info_dict[ESSENCE_NAMESPACE] = self.essence.copy()
@@ -252,11 +252,11 @@ class ChunkyFS(MemoryFS):
         return self.getinfo(path, [ESSENCE_NAMESPACE])
 
     def _make_dir_entry(
-            self, resource_type: ResourceType, name: str
+        self, resource_type: ResourceType, name: str
     ) -> _ChunkyDirEntry:
         return _ChunkyDirEntry(resource_type, name)
 
-    def setinfo(self, path:str, info:Mapping[str,Mapping[str,object]]) -> None:
+    def setinfo(self, path: str, info: Mapping[str, Mapping[str, object]]) -> None:
         _path = self.validatepath(path)
         with self._lock:
             dir_path, file_name = split(_path)
@@ -272,14 +272,13 @@ class ChunkyFS(MemoryFS):
             if "details" in info:
                 details = info["details"]
                 if "accessed" in details:
-                    resource_entry.accessed_time = details["accessed"] # type: ignore
+                    resource_entry.accessed_time = details["accessed"]  # type: ignore
                 if "modified" in details:
-                    resource_entry.modified_time = details["modified"] # type: ignore
+                    resource_entry.modified_time = details["modified"]  # type: ignore
 
             if "essence" in info:
                 essence = dict(info["essence"])
                 resource_entry.essence = essence.copy()
-
 
 
 __all__ = [
