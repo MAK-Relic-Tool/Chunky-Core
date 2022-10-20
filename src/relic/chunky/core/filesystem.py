@@ -78,7 +78,7 @@ class EntrypointRegistry(Generic[TKey, TValue]):
     def _auto_register_entrypoint(self, entry_point: Any) -> None:
         try:
             entry_point_result = entry_point.load()
-        except:  # Wrap in exception
+        except:  # TODO Wrap in exception
             raise
         return self._register_entrypoint(entry_point_result)
 
@@ -94,7 +94,7 @@ class ChunkyFSHandler(Protocol):
     def read(self, stream: BinaryIO) -> ChunkyFS:
         raise NotImplementedError
 
-    def write(self, stream: BinaryIO, essence_fs: ChunkyFS) -> int:
+    def write(self, stream: BinaryIO, fs: ChunkyFS) -> int:
         raise NotImplementedError
 
 

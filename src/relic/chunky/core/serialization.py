@@ -7,7 +7,6 @@ from typing import (
     Dict,
     TypeVar,
     Callable,
-    Mapping,
     Optional,
     Protocol,
     Iterable,
@@ -15,9 +14,8 @@ from typing import (
 
 from fs.base import FS
 from fs.errors import FileExists, DirectoryExists
-from relic.core.errors import MismatchError
 from serialization_tools.structx import Struct
-
+from relic.core.errors import MismatchError
 from relic.chunky.core.definitions import (
     ChunkType,
     ChunkFourCC,
@@ -27,7 +25,7 @@ from relic.chunky.core.definitions import (
 )
 from relic.chunky.core.errors import ChunkTypeError, VersionMismatchError
 from relic.chunky.core.filesystem import ChunkyFSHandler, ChunkyFS
-from relic.chunky.core.protocols import StreamSerializer, T
+from relic.chunky.core.protocols import StreamSerializer
 
 
 class ChunkTypeSerializer(StreamSerializer[ChunkType]):
@@ -98,8 +96,7 @@ def default_slugify_parts(name: str, ext: str, n: Optional[int] = None) -> str:
 
     if n is None:
         return f"{safe_name}.{ext}"
-    else:
-        return f"{safe_name} {n}.{ext}"
+    return f"{safe_name} {n}.{ext}"
 
 
 @dataclass
@@ -186,7 +183,7 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
             path = self.slugify(header.name, header.cc.code, n)
             try:
                 dir_fs = fs.makedir(path)
-            except DirectoryExists as exc:
+            except DirectoryExists:
                 continue
             else:
                 self._set_essence(dir_fs, "/", metadata)
@@ -197,16 +194,16 @@ class ChunkCollectionHandler(Generic[TChunkHeader]):
         header = self.header_serializer.unpack(stream)
         if header.type == ChunkType.Data:
             return self._unpack_data(fs, stream, header)
-        elif header.type == ChunkType.Folder:
+        if header.type == ChunkType.Folder:
             return self._unpack_folder(fs, stream, header)
+        raise NotImplementedError(header.type)
 
     def pack_chunk(self, parent_fs: FS, path: str, stream: BinaryIO) -> int:
         info = parent_fs.getinfo(path)
         if info.is_dir:
             sub_fs = parent_fs.opendir(path)
             return self._pack_folder(sub_fs, stream)
-        else:
-            return self._pack_data(parent_fs, path, stream)
+        return self._pack_data(parent_fs, path, stream)
 
     def unpack_chunk_collection(
         self, fs: FS, stream: BinaryIO, start: int, end: int
@@ -280,7 +277,7 @@ class ChunkyFSSerializer(ChunkyFSHandler, Generic[TChunkyHeader, TChunkHeader]):
         return fs
 
     def write(self, stream: BinaryIO, fs: ChunkyFS) -> int:
-        written:int = MagicWord.write_magic_word(stream)
+        written: int = MagicWord.write_magic_word(stream)
         # TODO, some warning for chunky meta not matching serializer version?
         #   It will definitely fail if all chunks dont get updated metadata for missing fields, so maybe irrelevant?
         written += self.version.pack(stream)
