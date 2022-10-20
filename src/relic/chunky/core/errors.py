@@ -9,7 +9,9 @@ class ChunkError(RelicToolError):
 
 
 class ChunkTypeError(ChunkError):
-    def __init__(self, chunk_type: Optional[Union[bytes, str]] = None, *args:object) -> None:
+    def __init__(
+        self, chunk_type: Optional[Union[bytes, str]] = None, *args: object
+    ) -> None:
         super().__init__(*args)
         self.chunk_type = chunk_type
 
@@ -21,7 +23,7 @@ class ChunkTypeError(ChunkError):
 
 
 class ChunkNameError(ChunkError):
-    def __init__(self, name: Optional[Union[bytes, str]] = None, *args:object) -> None:
+    def __init__(self, name: Optional[Union[bytes, str]] = None, *args: object) -> None:
         super().__init__(*args)
         self.name = name
 
@@ -33,7 +35,9 @@ class ChunkNameError(ChunkError):
 
 
 class VersionMismatchError(MismatchError[Version]):
-    def __init__(self, received: Optional[Version] = None, expected: Optional[Version] = None):
+    def __init__(
+        self, received: Optional[Version] = None, expected: Optional[Version] = None
+    ):
         super().__init__("Version", received, expected)
 
 
@@ -60,5 +64,5 @@ __all__ = [
     "ChunkTypeError",
     "ChunkNameError",
     "VersionMismatchError",
-    "VersionNotSupportedError"
+    "VersionNotSupportedError",
 ]

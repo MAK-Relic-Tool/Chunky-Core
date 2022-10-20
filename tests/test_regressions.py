@@ -17,6 +17,7 @@ core__all__ = [
 
 ROOT = "relic.chunky.core"
 
+
 @pytest.mark.parametrize("submodule", core__all__)
 def test_import_module(submodule: str):
     try:
@@ -25,18 +26,13 @@ def test_import_module(submodule: str):
         raise AssertionError(f"{submodule} is no longer exposed!")
 
 
-definitions__all__ = [
-    "ChunkFourCC",
-    "Version",
-    "MagicWord",
-    "ChunkType"
-]
+definitions__all__ = ["ChunkFourCC", "Version", "MagicWord", "ChunkType"]
 errors__all__ = [
     "ChunkError",
     "ChunkTypeError",
     "ChunkNameError",
     "VersionMismatchError",
-    "VersionNotSupportedError"
+    "VersionNotSupportedError",
 ]
 fs__all__ = [
     "ESSENCE_NAMESPACE",
@@ -53,7 +49,13 @@ serialization__all__ = [
     "chunk_cc_serializer",
     "chunk_type_serializer",
     "ChunkTypeSerializer",
-    "ChunkFourCCSerializer"
+    "ChunkFourCCSerializer",
+    "MinimalChunkHeader",
+    "TChunkHeader",
+    "TChunkyHeader",
+    "default_slugify_parts",
+    "ChunkCollectionHandler",
+    "ChunkyFSSerializer",
 ]
 
 
