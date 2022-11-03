@@ -86,12 +86,11 @@ _ESSENCE = "essence"
 
 def default_slugify_parts(name: str, ext: str, n: Optional[int] = None) -> str:
     # Any chunk which references the EssenceFS typically names themselves the full path to the references asset
-    #   unfortunately; that's a BAD name in the ChunkyFS; so we need to convert it to a safe ChunkyFS name
+    #   unfortunately; that's a BAD name in the ChunkyFS;b so we need to convert it to a safe ChunkyFS name
     safe_name = name.replace("/", "-").replace("\\", "-")
-
-    if safe_name[-1] == ".":
+    if len(safe_name) > 0 and safe_name[-1] == ".":
         safe_name = safe_name[:-1]
-    if ext[0] == ".":
+    if len(ext) > 0 and ext[0] == ".":
         ext = ext[1:]
 
     if n is None:
