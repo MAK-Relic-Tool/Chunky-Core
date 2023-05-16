@@ -49,6 +49,32 @@ class Version:
             return self.major == other.major and self.minor == other.minor
         return super().__eq__(other)
 
+    def __lt__(self, other):
+        if isinstance(other, Version):
+            return self.major < other.major or \
+                (self.major == other.major and self.minor < other.minor)
+        raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
+
+    def __gt__(self, other):
+        if isinstance(other, Version):
+            return self.major > other.major or \
+                (self.major == other.major and self.minor > other.minor)
+        raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
+
+
+    def __le__(self, other):
+        if isinstance(other, Version):
+            return self.major < other.major or \
+                (self.major == other.major and self.minor <= other.minor)
+        raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
+
+    def __ge__(self, other):
+        if isinstance(other, Version):
+            return self.major > other.major or \
+                (self.major == other.major and self.minor >= other.minor)
+        raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
+
+
     def __hash__(self) -> int:
         # Realistically; Version will always be <256
         # But we could manually set it to something much bigger by accident; and that may cause collisions
