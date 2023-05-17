@@ -49,31 +49,29 @@ class Version:
             return self.major == other.major and self.minor == other.minor
         return super().__eq__(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any) -> bool:
         if isinstance(other, Version):
             return self.major < other.major or \
-                (self.major == other.major and self.minor < other.minor)
+                   (self.major == other.major and self.minor < other.minor)
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
-    def __gt__(self, other):
+    def __gt__(self, other: Any) -> bool:
         if isinstance(other, Version):
             return self.major > other.major or \
-                (self.major == other.major and self.minor > other.minor)
+                   (self.major == other.major and self.minor > other.minor)
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
-
-    def __le__(self, other):
+    def __le__(self, other: Any) -> bool:
         if isinstance(other, Version):
             return self.major < other.major or \
-                (self.major == other.major and self.minor <= other.minor)
+                   (self.major == other.major and self.minor <= other.minor)
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
-    def __ge__(self, other):
+    def __ge__(self, other: Any) -> bool:
         if isinstance(other, Version):
             return self.major > other.major or \
-                (self.major == other.major and self.minor >= other.minor)
+                   (self.major == other.major and self.minor >= other.minor)
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
-
 
     def __hash__(self) -> int:
         # Realistically; Version will always be <256
