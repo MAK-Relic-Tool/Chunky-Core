@@ -51,26 +51,30 @@ class Version:
 
     def __lt__(self, other: Any) -> bool:
         if isinstance(other, Version):
-            return self.major < other.major or \
-                   (self.major == other.major and self.minor < other.minor)
+            return self.major < other.major or (
+                self.major == other.major and self.minor < other.minor
+            )
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
     def __gt__(self, other: Any) -> bool:
         if isinstance(other, Version):
-            return self.major > other.major or \
-                   (self.major == other.major and self.minor > other.minor)
+            return self.major > other.major or (
+                self.major == other.major and self.minor > other.minor
+            )
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
     def __le__(self, other: Any) -> bool:
         if isinstance(other, Version):
-            return self.major < other.major or \
-                   (self.major == other.major and self.minor <= other.minor)
+            return self.major < other.major or (
+                self.major == other.major and self.minor <= other.minor
+            )
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
     def __ge__(self, other: Any) -> bool:
         if isinstance(other, Version):
-            return self.major > other.major or \
-                   (self.major == other.major and self.minor >= other.minor)
+            return self.major > other.major or (
+                self.major == other.major and self.minor >= other.minor
+            )
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
     def __hash__(self) -> int:
