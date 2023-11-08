@@ -6,7 +6,12 @@ from io import BytesIO
 from typing import TypeVar, BinaryIO, Optional, Literal, List, Generic, Type
 
 from relic.chunky.core import protocols as p
-from relic.chunky.core._core import ChunkType, Version, ChunkFourCCPath, ChunkFourCC
+from relic.chunky.core.definitions import (
+    ChunkType,
+    Version,
+    ChunkFourCCPath,
+    ChunkFourCC,
+)
 from relic.chunky.core.protocols import TCMetadata, ChunkWalk
 
 TCFolder = TypeVar("TCFolder", bound=p.FolderChunk)

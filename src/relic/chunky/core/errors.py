@@ -1,6 +1,6 @@
 from typing import Union, List, Optional, Generic, TypeVar
 
-from relic.chunky.core._core import ChunkType, Version, Platform
+from relic.chunky.core.definitions import ChunkType, Version, Platform
 from relic.core.errors import MismatchError
 
 
@@ -44,7 +44,9 @@ class NotSupportedError(Exception, Generic[T]):
         self.allowed = allowed
 
     def __str__(self) -> str:
-        return f"`{self.received}` is not supported. Supported values: `{self.allowed}`."
+        return (
+            f"`{self.received}` is not supported. Supported values: `{self.allowed}`."
+        )
 
 
 class VersionMismatchError(MismatchError):

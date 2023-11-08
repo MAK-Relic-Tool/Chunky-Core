@@ -26,11 +26,11 @@
 import importlib
 from typing import Dict, Optional, List, Tuple
 
-from relic.chunky.core._core import Version
+from relic.chunky.core.definitions import Version
 from relic.chunky.core import protocols
 
 
-def get_api(module_name: str) -> Tuple[Version,protocols.API]:
+def get_api(module_name: str) -> Tuple[Version, protocols.API]:
     module = importlib.import_module(module_name)
     version = getattr(module, "version")
     API = getattr(module, "API")

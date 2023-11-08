@@ -24,7 +24,7 @@ class ChunkFourCC:
 
     def __repr__(self):
         attrs = ["code"]
-        attr_strs = [f"{attr}={getattr(self,attr)}" for attr in attrs]
+        attr_strs = [f"{attr}={getattr(self, attr)}" for attr in attrs]
         return f"{self.__class__.__name__}({','.join(attr_strs)})"
 
     def __eq__(self, other):
@@ -59,7 +59,6 @@ class ChunkFourCCPath:
         return self.parts == other.parts
 
 
-
 @dataclass
 class Version:
     """
@@ -91,15 +90,15 @@ class Version:
 
     def pack(self, stream: BinaryIO):
         layout: Struct = self.LAYOUT
-        args = (self.value, self.minor)
+        args = (self.value,)  # self.minor)
         return layout.pack_stream(stream, *args)
 
 
 class Platform(int, Enum):
-    _ignore_=["LAYOUT"]
-    LAYOUT: ClassVar[Struct] = Struct("<I")
-
+    # _ignore_ = ["LAYOUT"]
+    # LAYOUT: ClassVar[Struct] = Struct("<I")
     PC = 1  # maybe mac uses a separate format code?
+
 
 # We include \r\n\x1a\0 because it signals a properly formatted file
 MagicWord = MagicWordIO(Struct("< 16s"), b"Relic Chunky\r\n\x1a\0")

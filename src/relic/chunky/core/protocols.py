@@ -13,7 +13,12 @@ from typing import (
     Tuple,
 )
 
-from relic.chunky.core._core import ChunkType, Version, ChunkFourCCPath, ChunkFourCC
+from relic.chunky.core.definitions import (
+    ChunkType,
+    Version,
+    ChunkFourCCPath,
+    ChunkFourCC,
+)
 
 TCFolder = TypeVar("TCFolder")
 TCData = TypeVar("TCData")

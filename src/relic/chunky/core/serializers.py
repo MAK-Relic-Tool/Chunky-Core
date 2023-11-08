@@ -4,8 +4,12 @@ from typing import BinaryIO
 
 from serialization_tools.structx import Struct
 
-from relic.chunky.core._core import ChunkType, ChunkFourCC, Platform
-from relic.chunky.core.errors import ChunkTypeError, PlatformNotSupported, UnknownPlatformError
+from relic.chunky.core.definitions import ChunkType, ChunkFourCC, Platform
+from relic.chunky.core.errors import (
+    ChunkTypeError,
+    PlatformNotSupported,
+    UnknownPlatformError,
+)
 from relic.chunky.core.protocols import StreamSerializer
 
 
@@ -52,7 +56,7 @@ class PlatformSerializer(StreamSerializer[Platform]):
 
     def unpack(self, stream: BinaryIO):
         layout: Struct = self.layout
-        value:int = layout.unpack_stream(stream)[0]
+        value: int = layout.unpack_stream(stream)[0]
         try:
             return Platform(value)
         except ValueError:
