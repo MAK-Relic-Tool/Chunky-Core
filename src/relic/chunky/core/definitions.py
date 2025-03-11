@@ -24,8 +24,9 @@ class ChunkFourCC:
         return self.code
 
     def __eq__(self, other: Any) -> bool:
-        eq: bool = self.code == other.code
-        return eq
+        if isinstance(other,ChunkFourCC):
+            return self.code == other.code
+        return str(self) == str(other)
 
 
 @dataclass
