@@ -10,20 +10,22 @@ class ChunkError(RelicToolError):
 
 class ChunkTypeError(ChunkError):
     def __init__(
-        self, chunk_type: Optional[Union[bytes, str]] = None, *args: object
+        self, chunk_type: Optional[Union[bytes, str]] = None, /, *args: object
     ) -> None:
         super().__init__(*args)
         self.chunk_type = chunk_type
 
     def __str__(self) -> str:
-        msg = f"ChunkType must be {repr(ChunkType.Folder.value)} or {repr(ChunkType.Data.value)}"
+        msg = f"ChunkType must be {repr(ChunkType.FOLDER.value)} or {repr(ChunkType.DATA.value)}"
         if not self.chunk_type:
             return msg + "!"
         return msg + f"; got {repr(self.chunk_type)}!"
 
 
 class ChunkNameError(ChunkError):
-    def __init__(self, name: Optional[Union[bytes, str]] = None, *args: object) -> None:
+    def __init__(
+        self, name: Optional[Union[bytes, str]] = None, /, *args: object
+    ) -> None:
         super().__init__(*args)
         self.name = name
 
@@ -42,9 +44,7 @@ class VersionMismatchError(MismatchError[Version]):
 
 
 class VersionNotSupportedError(RelicToolError):
-    """
-    An unknown version was provided.
-    """
+    """An unknown version was provided."""
 
     def __init__(self, received: Version, allowed: List[Version]):
         super().__init__()

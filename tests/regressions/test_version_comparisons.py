@@ -8,8 +8,8 @@ from relic.chunky.core.definitions import Version
 # Max i've seen is probably 16ish?
 # Minor's (typically called platform elsewhere) is supposedly always 1
 #   Set it to cover some range to make sure everything works
-_VERSION_MAJORS = [1,2,4,8,16] # arbitrary
-_VERSION_MINORS = [1,2] # arbitrary
+_VERSION_MAJORS = [1, 2, 4, 8, 16]  # arbitrary
+_VERSION_MINORS = [1, 2]  # arbitrary
 _VERSION_ARGS = list(itertools.product(_VERSION_MAJORS, _VERSION_MINORS))
 _VERSIONS = [Version(*a) for a in _VERSION_ARGS]
 _VERSION_IDS = [f"V{v.major}.{v.minor}" for v in _VERSIONS]

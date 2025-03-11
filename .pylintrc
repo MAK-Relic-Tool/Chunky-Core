@@ -70,14 +70,6 @@ confidence=
 
 # Disable docstring errors
 disable=
-#        C0114,
-#        C0115,
-#        C0116,
-
-        long-suffix,
-        old-ne-operator,
-        old-octal-literal,
-        non-ascii-bytes-literal,
         raw-checker-failed,
         bad-inline-option,
         locally-disabled,
@@ -86,7 +78,6 @@ disable=
         useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
-        eq-without-hash,
 
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -103,7 +94,7 @@ enable=c-extension-no-member
 # which contain the number of messages in each category, as well as 'statement'
 # which is the total number of statements analyzed. This score is used by the
 # global evaluation report (RP0004).
-evaluation=10.0 - ((float(4 * error + 3 * warning + 2 * refactor + 1 * convention) / ((4+3+2+1) * statement)) * 10)
+evaluation=10.0 - ((float(4 * error + 3 * warning + 2 * refactor + 1 * convention) / (4 * statement)) * 10)
 
 # Template used to display messages. This is a python new-style format string
 # used to format the message information. See doc for all details.
@@ -553,5 +544,5 @@ preferred-modules=
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception

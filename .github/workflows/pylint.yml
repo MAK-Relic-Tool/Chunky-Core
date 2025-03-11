@@ -4,23 +4,23 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'src/**'
-      - '.github/workflows/pylint.yml'
-      - '.pylintrc'
-      - 'requirements.txt'
+    - src/**
+    - .github/workflows/pylint.yml
+    - .pylintrc
+    - requirements.txt
 
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'src/**'
-      - '.github/workflows/pylint.yml'
-      - '.pylintrc'
-      - 'requirements.txt'
+    - src/**
+    - .github/workflows/pylint.yml
+    - .pylintrc
+    - requirements.txt
 
 jobs:
   pylint:
     uses: MAK-Relic-Tool/Workflows/.github/workflows/pylint.yml@main
     with:
-      path: "src"
+      path: src

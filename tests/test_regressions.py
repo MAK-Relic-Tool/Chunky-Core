@@ -1,6 +1,5 @@
-"""
-Tests which ensures releases do not break backwards-compatibility by failing to expose modules/names
-"""
+"""Tests which ensures releases do not break backwards-compatibility by failing to
+expose modules/names."""
 
 import importlib
 from typing import List, Iterable, Tuple

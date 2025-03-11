@@ -5,10 +5,10 @@ from typing import Dict, BinaryIO
 from serialization_tools.structx import Struct
 
 from relic.chunky.core.definitions import Version, ChunkType, ChunkFourCC
-from relic.chunky.core.filesystem import ChunkyFS
-from relic.chunky.core.protocols import StreamSerializer, T
+from relic.chunky.core.chunkyfs import ChunkyFS
+from relic.chunky.core.protocols import InstancedStreamSerializer, T
 from relic.chunky.core.serialization import (
-    MinimalChunkHeader,
+    ChunkHeader,
     ChunkyFSSerializer,
     ChunkCollectionHandler,
     chunk_type_serializer,
@@ -17,14 +17,14 @@ from relic.chunky.core.serialization import (
 
 
 @dataclass
-class ChunkTestHeader(MinimalChunkHeader):
+class ChunkTestHeader(ChunkHeader):
     name: str
     cc: ChunkFourCC
     type: ChunkType
     size: int
 
 
-class ChunkTestHeaderSerializer(StreamSerializer[ChunkTestHeader]):
+class ChunkTestHeaderSerializer(InstancedStreamSerializer[ChunkTestHeader]):
     def __init__(self):
         self.NUM = Struct("<I")
         self.type_serializer = chunk_type_serializer
@@ -58,7 +58,7 @@ def meta2ChunkTestHeader(meta: Dict[str, object]) -> ChunkTestHeader:
     return ChunkTestHeader(name=meta["name"], cc=meta["4cc"], type=None, size=None)  # type: ignore
 
 
-class NoneHeaderSerializer(StreamSerializer[None]):
+class NoneHeaderSerializer(InstancedStreamSerializer[None]):
     def unpack(self, stream: BinaryIO) -> T:
         return None
 
@@ -96,7 +96,7 @@ class TestSerializer:
                 str(n),
                 {
                     "essence": chunkTestHeader2Meta(
-                        ChunkTestHeader(NAME, ChunkFourCC("TEST"), ChunkType.Data, 0)
+                        ChunkTestHeader(NAME, ChunkFourCC("TEST"), ChunkType.DATA, 0)
                     )
                 },
             )

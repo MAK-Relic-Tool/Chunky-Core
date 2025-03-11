@@ -1,17 +1,19 @@
+"""
+Definition for types that are common to Relic Chunky Files
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import BinaryIO, ClassVar, Any
+from typing import Any
 
-from relic.core.errors import MismatchError
-from serialization_tools.magic import MagicWordIO
-from serialization_tools.structx import Struct
+from relic.core.serialization import MagicWord
 
 
 class ChunkType(str, Enum):
-    Folder = "FOLD"
-    Data = "DATA"
+    FOLDER = "FOLD"
+    DATA = "DATA"
 
 
 class ChunkFourCC:
@@ -24,23 +26,17 @@ class ChunkFourCC:
         return self.code
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other,ChunkFourCC):
+        if isinstance(other, ChunkFourCC):
             return self.code == other.code
         return str(self) == str(other)
 
 
 @dataclass
 class Version:
-    """
-    A `Chunky Version`
-    """
+    """A `Chunky Version`"""
 
-    """ The Major Version """
-    major: int
-    """ The Minor Version, this is typically `1` """
-    minor: int = 1
-
-    LAYOUT: ClassVar[Struct] = Struct("<2I")
+    major: int  # The Major Version
+    minor: int = 1  # The Minor Version, this is typically `1`
 
     def __str__(self) -> str:
         return f"Version {self.major}.{self.minor}"
@@ -79,49 +75,11 @@ class Version:
         raise TypeError(f"Other is not an  instance of `{self.__class__}`!")
 
     def __hash__(self) -> int:
-        # Realistically; Version will always be <256
-        # But we could manually set it to something much bigger by accident; and that may cause collisions
-        TERM_SIZE_IN_BYTES: int = self.LAYOUT.size // 2
-        return self.major << (TERM_SIZE_IN_BYTES * 8) + self.minor
-
-    @classmethod
-    def unpack(cls, stream: BinaryIO) -> Version:
-        layout: Struct = cls.LAYOUT
-        args = layout.unpack_stream(stream)
-        return cls(*args)
-
-    def pack(self, stream: BinaryIO) -> int:
-        layout: Struct = self.LAYOUT
-        args = (self.major, self.minor)
-        written: int = layout.pack_stream(stream, *args)
-        return written
+        return f"{self.major}.{self.minor}".__hash__()
 
 
-MagicWord = MagicWordIO(
-    Struct("< 16s"), b"Relic Chunky\r\n\x1a\0"
-)  # We include \r\n\x1a\0 because it signals a properly formatted file
+# We include \r\n\x1a\0 because it signals a properly formatted file
+MAGIC_WORD = MagicWord(b"Relic Chunky\r\n\x1a\0", "Chunky Magic")
 
 
-def _validate_magic_word(self: MagicWordIO, stream: BinaryIO, advance: bool) -> None:
-    magic = self.read_magic_word(stream, advance)
-    if magic != self.word:
-        raise MismatchError("MagicWord", magic, self.word)
-
-
-@dataclass
-class _ChunkLazyInfo:
-    jump_to: int
-    size: int
-    stream: BinaryIO
-
-    def read(self) -> bytes:
-        jump_back = self.stream.tell()
-        self.stream.seek(self.jump_to)
-        buffer = self.stream.read(self.size)
-        if len(buffer) != self.size:
-            raise MismatchError("Buffer Read Size", len(buffer), self.size)
-        self.stream.seek(jump_back)
-        return buffer
-
-
-__all__ = ["ChunkType", "ChunkFourCC", "MagicWord", "Version"]
+__all__ = ["ChunkType", "ChunkFourCC", "MAGIC_WORD", "Version"]

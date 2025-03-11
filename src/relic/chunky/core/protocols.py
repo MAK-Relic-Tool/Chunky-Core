@@ -5,13 +5,14 @@ from typing import (
     TypeVar,
     Protocol,
     BinaryIO,
+    Union,
 )
 
 T = TypeVar("T")
 
 
 @runtime_checkable
-class StreamSerializer(Protocol[T]):
+class InstancedStreamSerializer(Protocol[T]):
     def unpack(self, stream: BinaryIO) -> T:
         raise NotImplementedError(
             f"{self.__class__.__module__}.{self.__class__.__qualname__}.unpack"
@@ -23,4 +24,22 @@ class StreamSerializer(Protocol[T]):
         )
 
 
-__all__ = ["T", "StreamSerializer"]
+@runtime_checkable
+class StaticStreamSerializer(Protocol[T]):
+    @classmethod
+    def unpack(cls, stream: BinaryIO) -> T:
+        raise NotImplementedError(f"{cls.__module__}.{cls.__qualname__}.unpack")
+
+    @classmethod
+    def pack(cls, stream: BinaryIO, packable: T) -> int:
+        raise NotImplementedError(f"{cls.__module__}.{cls.__qualname__}.pack")
+
+
+StreamSerializer = Union[InstancedStreamSerializer[T], StaticStreamSerializer[T]]
+
+__all__ = [
+    "T",
+    "InstancedStreamSerializer",
+    "StaticStreamSerializer",
+    "StreamSerializer",
+]
