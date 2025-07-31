@@ -119,6 +119,33 @@ class ChunkyFsOpener(
 
 
 registry: ChunkyFsOpener[ChunkyFS] = ChunkyFsOpener()
+
+class _ChunkyFsOpenerAdapter(Opener):
+    """
+    An adapter allowing PyFileSystem to use the EssenceFS Registry
+
+    Required for PyFilesystem to use non-entrypoint plugins
+    (I.E. Plugins registered manually)
+
+    PyFileSystem expects a subclass of Opener, not an instance of Opener
+    This adapter allows PyFileSystem to create a new opener, while using the global opener instance under the hood
+    """
+
+    # Python 3.13 deprecated classmethod property chaining
+    # Python 3.9 doesn't have __wrapped__
+    # Bite the bullet and just copy the list, if this becomes a problem, then it'll come at the cost of dropping Py3.9
+    protocols = registry.protocols
+
+    def open_fs(
+        self,
+        fs_url: str,
+        parse_result: ParseResult,
+        writeable: bool,
+        create: bool,
+        cwd: str,
+    ) -> ChunkyFS:
+        return registry.open_fs(fs_url, parse_result, writeable, create, cwd)
+
 open_chunky = registry.open_fs
 
 __all__ = ["ChunkyFsOpenerPlugin", "ChunkyFsOpener", "registry", "open_chunky"]

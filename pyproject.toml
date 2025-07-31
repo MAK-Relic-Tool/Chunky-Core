@@ -15,7 +15,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "relic-tool-core >= 1.0.0",
+  "relic-tool-core >= 2.0.0",
   "fs"
 ]
 # author_email = author@example.com
@@ -25,7 +25,7 @@ name = "relic-tool-chunky-core"
 requires-python = ">=3.9"
 
 [project.entry-points."fs.opener"]
-chunky = "relic.chunky.core.chunkyfs:ChunkyFsOpener"
+chunky = "relic.chunky.core.chunkyfs.opener:_ChunkyFsOpenerAdapter"
 
 [project.readme]
 content-type = "text/markdown"
