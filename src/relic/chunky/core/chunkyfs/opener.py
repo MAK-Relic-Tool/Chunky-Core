@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 from os.path import expanduser
-from typing import BinaryIO, Protocol, List, Union, Type
+from typing import BinaryIO, Protocol, List, Union, Type, TypeVar
 
 import fs.opener.errors
 from fs.opener import Opener
@@ -17,7 +17,7 @@ from relic.chunky.core.chunkyfs.definitions import ChunkyFS
 from relic.chunky.core.serialization import VersionSerializer
 
 
-_TChunkyFS = TypeError("_TChunkFS", ChunkyFS)
+_TChunkyFS = TypeVar("_TChunkFS", bound=ChunkyFS)
 
 logger = logging.getLogger(__file__)
 

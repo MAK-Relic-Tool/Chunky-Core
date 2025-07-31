@@ -25,7 +25,7 @@ name = "relic-tool-chunky-core"
 requires-python = ">=3.9"
 
 [project.entry-points."fs.opener"]
-chunky = "relic.chunky.core.filesystem:ChunkyFSOpener"
+chunky = "relic.chunky.core.chunkyfs:ChunkyFsOpener"
 
 [project.readme]
 content-type = "text/markdown"
