@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from functools import total_ordering
 from typing import Any
 
 from relic.core.serialization import MagicWord
@@ -16,6 +17,7 @@ class ChunkType(str, Enum):
     DATA = "DATA"
 
 
+@total_ordering
 class ChunkFourCC:
     def __init__(self, code: str) -> None:
         if len(code) != 4:
@@ -29,6 +31,15 @@ class ChunkFourCC:
         if isinstance(other, ChunkFourCC):
             return self.code == other.code
         return str(self) == str(other)
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, ChunkFourCC):
+            return self.code < other.code
+        return str(self) < str(other)
+
+
+    def __hash__(self) -> int:
+        return self.code.__hash__()
 
 
 @dataclass
