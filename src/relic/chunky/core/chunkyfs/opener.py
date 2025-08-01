@@ -44,6 +44,9 @@ class ChunkyFsOpenerPlugin(Protocol[_TChunkyFS]):
     ) -> _TChunkyFS:
         raise NotImplementedError
 
+    def open_bin(self, bin:BinaryIO) -> _TChunkyFS:
+        raise NotImplementedError
+
 
 def _get_version(file: Union[BinaryProxy, BinaryIO], advance: bool = False) -> Version:
     binio = get_proxy(file)
@@ -102,7 +105,7 @@ class ChunkyFsOpener(
         with open(path, "rb") as peeker:
             version = _get_version(
                 peeker, True
-            )  # advance is true to avoid unnecessary seek
+            )  # advance is true to avoid unnecessary seek # advance = false will seek to avoid changing the file's read position
         try:
             opener: Union[Type[ChunkyFsOpenerPlugin], ChunkyFsOpenerPlugin] = self[version]  # type: ignore
         except KeyError as e:
@@ -116,6 +119,24 @@ class ChunkyFsOpener(
             opener: ChunkyFsOpenerPlugin = opener()  # type: ignore
 
         return opener.open_fs(fs_url, parse_result, writeable, create, cwd)  # type: ignore
+
+    def open_bin_fs(self, fp:BinaryIO) -> ChunkyFS:
+        version = _get_version(
+            fp, False
+        )
+        try:
+            opener: Union[Type[ChunkyFsOpenerPlugin], ChunkyFsOpenerPlugin] = self[version]  # type: ignore
+        except KeyError as e:
+            raise RelicToolError(
+                f"Version {version} not supported! Supported Chunky Versions '{list(self.keys())}'."
+                f" Are you missing a plugin?"
+            ) from e
+
+        if isinstance(opener, type):
+            logger.warning("Chunky Opener was a type, creating instance")
+            opener: ChunkyFsOpenerPlugin = opener()  # type: ignore
+
+        return opener.open_bin(fp)  # type: ignore
 
 
 registry: ChunkyFsOpener[ChunkyFS] = ChunkyFsOpener()

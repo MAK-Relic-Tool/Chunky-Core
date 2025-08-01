@@ -19,10 +19,13 @@ class ChunkType(str, Enum):
 
 @total_ordering
 class ChunkFourCC:
-    def __init__(self, code: str) -> None:
+    def __init__(self, code: str|ChunkFourCC) -> None:
         if len(code) != 4:
             raise TypeError("`code` must be a four character long string!")
-        self.code = code
+        self.code = str(code)
+
+    def __len__(self):
+        return len(self.code)
 
     def __str__(self) -> str:
         return self.code
