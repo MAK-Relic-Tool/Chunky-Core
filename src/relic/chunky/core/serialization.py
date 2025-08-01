@@ -18,6 +18,8 @@ from relic.chunky.core.protocols import StaticStreamSerializer
 
 
 class VersionSerializer(StaticStreamSerializer[Version]):  # pylint: disable = W0223
+    _SIZE = 8
+
     @staticmethod
     def _read_int32(stream: BinaryIO) -> int:
         SIZE = 4
